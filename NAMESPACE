@@ -1,0 +1,7 @@
+export(psme)
+
+importFrom(stats, formula, terms)
+importFrom(Matrix, t)
+importFrom(methods, new, as)
+importFrom(mgcv, interpret.gam, smooth.construct2, smoothCon)
+importFrom(lme4, lFormula, mkLmerDevfun, optimizeLmer, mkMerMod)
