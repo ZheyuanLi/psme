@@ -234,3 +234,11 @@ EvalSmooth <- function (mgcv.smooth, new.x) {
   y <- X %*% b
   if (ncol(y) == 1L) c(y) else y
 }
+
+GetExtrema <- function (x, y) {
+  turn <- diff.default(sign(diff.default(y)))
+  maxInd <- which(turn == -2) + 1L
+  minInd <- which(turn == 2) + 1L
+  list(min.x = x[minInd], min.y = y[minInd],
+       max.x = x[maxInd], max.y = y[maxInd])
+}
