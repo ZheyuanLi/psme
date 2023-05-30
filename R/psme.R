@@ -226,3 +226,11 @@ psme <- function (mgcv.form, data, knots = NULL) {
   list(pform = parsed.mgcv.form$pf, pcoef = bf, smooth = smooth, lme4.fit = lme4.fit)
 }
 
+EvalSmooth <- function (mgcv.smooth, new.x) {
+  dat <- data.frame(x = new.x)
+  names(dat) <- mgcv.smooth$term
+  X <- mgcv::PredictMat(mgcv.smooth, dat)
+  b <- mgcv.smooth$coefficients
+  y <- X %*% b
+  if (ncol(y) == 1L) c(y) else y
+}
