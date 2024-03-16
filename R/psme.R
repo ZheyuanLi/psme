@@ -167,7 +167,8 @@ psme <- function (mgcv.form, data, knots = NULL) {
   names(Z) <- names(Xr) <- sprintf("Xr.%d", 1:kr)
   if (kf) names(Xf) <- sprintf("Xf.%d", 1:kf)
   lme4.vars <- c(data[all.vars(parsed.mgcv.form$pf)], Xf, Xr)
-  parsed.lme4.form <- lme4::lFormula(lme4.form, lme4.vars)
+  ctrl <- lme4::lmerControl(check.nobs.vs.nlev = "warning", check.nobs.vs.nRE = "warning")
+  parsed.lme4.form <- lme4::lFormula(lme4.form, lme4.vars, REML = TRUE, control = ctrl)
   reTrms <- parsed.lme4.form$reTrms
   Xr.names <- names(reTrms$flist)
   reTrms$Ztlist <- lapply(Z[Xr.names], Matrix::t)
