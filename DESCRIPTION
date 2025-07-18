@@ -1,7 +1,7 @@
 Package: psme
 Version: 1.0
 Date: 2023-04-04
-Title: Penalized Splines Mixed-Effects Models
+Title: Penalized Splines Mixed-Effects Models for Large Longitudinal Datasets
 Authors@R: person("Zheyuan", "Li", role = c("aut", "cre"),
                   email = "zheyuan.li@bath.edu",
                   comment = c(ORCID = "0000-0002-7434-5947"))
@@ -9,7 +9,8 @@ Author: Zheyuan Li [aut, cre] (<https://orcid.org/0000-0002-7434-5947>),
 Maintainer: Zheyuan Li <zheyuan.li@bath.edu>
 Depends: R (>= 4.0.0)
 Imports: stats, Matrix, methods, mgcv, lme4
-Description: Intended for large longitudinal datasets.
+Suggests: roxygen2
+Description: Fit penalized splines mixed-effects models for large longitudinal datasets. The core computational routines are implemented in C++ and interfaced with R. The package is designed to be fast and memory-efficient, and can handle datasets with millions of observations.
 License: GPL-3
 NeedsCompilation: yes
 URL: https://github.com/ZheyuanLi/psme

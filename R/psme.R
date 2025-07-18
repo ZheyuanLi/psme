@@ -1,3 +1,12 @@
+#' Convert a smooth specification to a mixed-effects model representation
+#'
+#' This function takes a smooth specification from `mgcv` and converts it into a
+#' mixed-effects model representation that can be used with `lme4`.
+#'
+#' @param object An object of class `mgcv.smooth`.
+#' @return A list containing the random effects design matrix (`Xr`), the fixed
+#'   effects design matrix (`Xf`), and the penalty matrix (`P`).
+#' @keywords internal
 ss2me <- function (object) {
   if (!inherits(object, "mgcv.smooth")) {
     stop("'object' is not a singleton s() term!")
@@ -32,6 +41,17 @@ ss2me <- function (object) {
   }
 }
 
+#' Create a design matrix for a factor interaction
+#'
+#' This function creates a design matrix for the interaction between a continuous
+#' variable and a factor.
+#'
+#' @param X A numeric matrix.
+#' @param fctr A factor variable.
+#' @param split.by.level A logical value indicating whether to split the design
+#'   matrix by the levels of the factor.
+#' @return A sparse design matrix or a list of sparse design matrices.
+#' @keywords internal
 Xfctr <- function (X, fctr, split.by.level = FALSE) {
   if (!is.factor(fctr)) stop("'fctr' is not a factor variable!")
   nlev <- nlevels(fctr)
@@ -53,6 +73,16 @@ Xfctr <- function (X, fctr, split.by.level = FALSE) {
   Mlev
 }
 
+#' Convert a factor smooth interaction to a random-effects representation
+#'
+#' This function takes a factor smooth interaction from `mgcv` and converts it
+#' into a random-effects representation that can be used with `lme4`.
+#'
+#' @param object An object of class `mgcv.smooth`.
+#' @param fctr A factor variable.
+#' @return A list containing the random effects design matrices (`Xr`) and the
+#'   penalty matrix (`P`).
+#' @keywords internal
 fs2re <- function (object, fctr) {
   if (!is.null(object$Xf)) f <- ncol(object$Xf) else f <- 0L
   Xr <- vector("list", 1L + f)
@@ -68,6 +98,16 @@ fs2re <- function (object, fctr) {
   list(Xr = Xr, P = object$P)
 }
 
+#' Convert a factor-by smooth to a mixed-effects model representation
+#'
+#' This function takes a factor-by smooth from `mgcv` and converts it into a
+#' mixed-effects model representation that can be used with `lme4`.
+#'
+#' @param object An object of class `mgcv.smooth`.
+#' @param fctr A factor variable.
+#' @return A list containing the random effects design matrices (`Xr`), the fixed
+#'   effects design matrix (`Xf`), and the penalty matrix (`P`).
+#' @keywords internal
 ssfby2me <- function (object, fctr) {
   Xr <- Xfctr(object$Xr, fctr, split.by.level = TRUE)
   if (!is.null(object$Xf)) {
@@ -77,6 +117,32 @@ ssfby2me <- function (object, fctr) {
   }
 }
 
+#' Fit a Penalized Splines Mixed-Effects Model
+#'
+#' This function fits a Gaussian additive model using `lme4`. It is intended for
+#' large longitudinal datasets.
+#'
+#' @param mgcv.form A `mgcv`-style model formula.
+#' @param data A data frame containing the variables in the formula. Note: please
+#'   remove rows with `NA`.
+#' @param knots An optional named list providing knots.
+#' @return A list containing the following components:
+#'   \item{pform}{The formula for the parametric part of the model.}
+#'   \item{pcoef}{The coefficients for the parametric part of the model.}
+#'   \item{smooth}{A list of smooth objects.}
+#'   \item{lme4.fit}{The fitted `lme4` model.}
+#' @author Zheyuan Li \email{zheyuan.li@@bath.edu}
+#' @examples
+#' require(psme)
+#' ## A simple example
+#' set.seed(123)
+#' n <- 100
+#' x <- runif(n)
+#' y <- 2 * x + sin(2 * pi * x) + rnorm(n, 0, 0.5)
+#' dat <- data.frame(x = x, y = y)
+#' fit <- psme(y ~ s(x), data = dat)
+#' summary(fit$lme4.fit)
+#' @export
 psme <- function (mgcv.form, data, knots = NULL) {
   n.obs <- nrow(data)
   parsed.mgcv.form <- mgcv::interpret.gam(mgcv.form)
@@ -227,6 +293,14 @@ psme <- function (mgcv.form, data, knots = NULL) {
   list(pform = parsed.mgcv.form$pf, pcoef = bf, smooth = smooth, lme4.fit = lme4.fit)
 }
 
+#' Evaluate a smooth term
+#'
+#' This function evaluates a smooth term at new data points.
+#'
+#' @param mgcv.smooth A smooth object from a `psme` fit.
+#' @param new.x A vector or matrix of new data points.
+#' @return A vector or matrix of the evaluated smooth term.
+#' @export
 EvalSmooth <- function (mgcv.smooth, new.x) {
   dat <- data.frame(x = new.x)
   names(dat) <- mgcv.smooth$term
@@ -236,6 +310,18 @@ EvalSmooth <- function (mgcv.smooth, new.x) {
   if (ncol(y) == 1L) c(y) else y
 }
 
+#' Find the extrema of a curve
+#'
+#' This function finds the local minima and maxima of a curve.
+#'
+#' @param x A numeric vector of x-coordinates.
+#' @param y A numeric vector of y-coordinates.
+#' @return A list with the following components:
+#'   \item{min.x}{The x-coordinates of the local minima.}
+#'   \item{min.y}{The y-coordinates of the local minima.}
+#'   \item{max.x}{The x-coordinates of the local maxima.}
+#'   \item{max.y}{The y-coordinates of the local maxima.}
+#' @export
 GetExtrema <- function (x, y) {
   turn <- diff.default(sign(diff.default(y)))
   maxInd <- which(turn == -2) + 1L
