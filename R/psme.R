@@ -15,8 +15,8 @@ ss2me <- function (object) {
   D <- ei$values[1:r]
   U <- ei$vectors
   P <- backsolve(R, U)
-  Z <- forwardsolve(R, t.default(X), upper.tri = TRUE, transpose = TRUE)
-  Z <- t.default(crossprod(U, Z))
+  Qt <- forwardsolve(R, t.default(X), upper.tri = TRUE, transpose = TRUE)
+  Z <- t.default(crossprod(U, Qt))
   d <- 1 / sqrt(D)
   P[, 1:r] <- P[, 1:r] * rep(d, each = p)
   Xr <- Z[, 1:r] * rep(d, each = n)
@@ -243,3 +243,4 @@ GetExtrema <- function (x, y) {
   list(min.x = x[minInd], min.y = y[minInd],
        max.x = x[maxInd], max.y = y[maxInd])
 }
+
