@@ -69,8 +69,6 @@ dat <- data.frame(x = x, y = y, id = as.factor(id))
 ## fit a penalized splines mixed-effects model
 mgcv.form <- y ~ s(x, bs = 'ps', k = 8) +
                  s(x, id, bs = 'fs', xt = 'ps', k = 8, m = c(2, 1))
-
-\donttest{
 fit <- psme(mgcv.form, data = dat)
 
 ## evaluate population smooth function and subject smooth functions
@@ -80,6 +78,5 @@ sub.smooth <- EvalSmooth(fit$smooth[[2]], new.x = xp)
 smooth <- pop.smooth + sub.smooth + fit$pcoef[["(Intercept)"]]
 matplot(xp, smooth, type = "l", lty = 1, xlab = "x", ylab = "fitted trajectories")
 points(dat, pch = 20, col = 8)
-}
 }
 
